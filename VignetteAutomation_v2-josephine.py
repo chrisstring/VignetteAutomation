@@ -14,18 +14,29 @@
 #                     with the same filename with .vnt extension is created. (eg. J104707_alt4.vnt).
 #                     Log.txt file will contain logs for each file in the "InputFiles" folder.
 #
-# History       
+# History
 # Version   Date          Modifer             Comment
 # 1.0       09-20-2016    Dixant Rai          Created
 # 1.1       10-14-2016    Dixant Rai          Adjusted script so that main image file without "_alt" are also be processed.
+# 1.2       03-29-2018    Topher Null         Create user specific copies, also notify users if the wrong python is being used
 
 import datetime
 import time
 import os
 import shutil
 import fnmatch
+import sys
+
+if sys.version_info.major==3:
+    raise ValueError("Wrong version of python, use python2!")
+
+
 from os.path import splitext
 from s7vampy import *
+
+
+
+
 
 # set working dir to the location of this python file
 dir_path = os.path.dirname(os.path.realpath('__file__'))
@@ -53,7 +64,7 @@ def copyDirectory(src, dest):
     # delete destination path if it exist
     if os.path.exists(dest):
         shutil.rmtree(dest)
-        
+
     try:
         shutil.copytree(src, dest,ignore=ignore_patterns('*.*'))
     # Directories are the same
@@ -69,13 +80,13 @@ def createVignette(parent_file,mask_file,group_name,nontexturable_obj_name,log_p
     v = create_vignette(open_image(parent_file))
     v.view.illum[0] = open_image(parent_file)
     group = v.objects.add_group(group_name)
-    obj = group.add_nontexturable_object(nontexturable_obj_name, open_image(mask_file)) 
+    obj = group.add_nontexturable_object(nontexturable_obj_name, open_image(mask_file))
     try:
         v.save(vignette_file)
     except OSError as e:
         writetolog(log_path,'\t Error: %s' % e)
 
-def main():   
+def main():
     # set working dir to the location of this python file
     dir_path = os.path.dirname(os.path.realpath('__file__'))
 
@@ -106,7 +117,7 @@ def main():
                 else:
                     # writetolog(log_path,'\t%s' % fname + ' : Not Processed - corresponding file %s does not exist' % fname.replace('.psd','-mask.png'))
                     writetolog(log_path,'\t{0:50} : Not Processed - corresponding file [%s] does not exist'.format(fname) % fname.replace('.psd','-mask.png'))
-                    print '\t{0:50} : Not Processed - corresponding file [%s] does not exist'.format(fname)
+                    print '\t{0:50} : Not Processed - corresponding file [%s] does not exist'.format(fname) % fname.replace('.psd','-mask.png')
     writetolog(log_path,'****End Process***' + '\n')
 
 if __name__ == '__main__':
