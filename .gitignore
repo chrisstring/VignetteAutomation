@@ -1,0 +1,6 @@
+#ignore all files
+*
+#track all py files
+!*.py
+!*.gitignore
+!README.md
